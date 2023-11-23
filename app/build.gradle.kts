@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android") version "2.44" apply false
 }
 
 android {
@@ -67,4 +69,26 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.navigation:navigation-compose:2.7.5")
+    // ExoPlayer
+    implementation("androidx.media3:media3-exoplayer:1.2.0")
+    implementation("androidx.media3:media3-exoplayer-dash:1.2.0")
+    implementation("androidx.media3:media3-ui:1.2.0")
+
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    implementation("io.coil-kt:coil-compose:2.1.0")
+
+    // Retrofit2 with Moshi Converter
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    // Moshi
+    implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }

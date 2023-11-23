@@ -4,9 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import wade.owen.toptop.navigation.Destinations
-import wade.owen.toptop.screen.FacebookVideo
-import wade.owen.toptop.screen.TopTopScreen
+import wade.owen.toptop.screen.facebook.FacebookVideo
+import wade.owen.toptop.screen.toptop.TopTopScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
