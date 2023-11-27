@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import wade.owen.toptop.compose.BottomBar
 import wade.owen.toptop.navigation.NavigationGraph
+import wade.owen.toptop.screen.toptop.TopTopScreen
 import wade.owen.toptop.ui.theme.TopTopTheme
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -26,23 +27,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             TopTopTheme {
                 // A surface container using the 'background' color from the theme
-                val navController: NavHostController = rememberNavController()
-                val buttonsVisible = remember { mutableStateOf(true) }
-                Scaffold(
-                    bottomBar = {
-                        BottomBar(
-                            navHostController = navController,
-                            state = buttonsVisible,
-                            modifier = Modifier.background(color = Color.White)
-                        )
-                    }
-                ) { paddingValues ->
-                    Box(
-                        modifier = Modifier.padding(paddingValues)
-                    ) {
-                        NavigationGraph(navController = navController)
-                    }
-                }
+//                val navController: NavHostController = rememberNavController()
+//                val buttonsVisible = remember { mutableStateOf(true) }
+//                Scaffold(
+//                    bottomBar = {
+//                        BottomBar(
+//                            navHostController = navController,
+//                            state = buttonsVisible,
+//                            modifier = Modifier.background(color = Color.White)
+//                        )
+//                    }
+//                ) { paddingValues ->
+//                    Box(
+//                        modifier = Modifier.padding(paddingValues)
+//                    ) {
+//                        NavigationGraph(navController = navController)
+//                    }
+//                }
+                TopTopScreen()
             }
         }
     }
