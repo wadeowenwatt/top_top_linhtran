@@ -1,6 +1,8 @@
 package wade.owen.toptop
 
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -19,11 +21,18 @@ import wade.owen.toptop.compose.BottomBar
 import wade.owen.toptop.navigation.NavigationGraph
 import wade.owen.toptop.screen.toptop.TopTopScreen
 import wade.owen.toptop.ui.theme.TopTopTheme
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            );
+        }
         setContent {
             TopTopTheme {
                 // A surface container using the 'background' color from the theme
