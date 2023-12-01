@@ -6,5 +6,5 @@ import wade.owen.toptop.data.model.ApiListVideoResponse
 
 interface VideoApi {
     @GET("/videos/popular")
-    suspend fun getListVideo(@Header("Authorization") accessToken: String): ApiListVideoResponse
+    suspend fun getListVideo(@Header("Authorization") accessToken: String): ApiListVideoResponse?
 }

@@ -1,5 +1,6 @@
 package wade.owen.toptop.screen.toptop
 
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,22 +25,28 @@ class VideoViewModel @OptIn(UnstableApi::class) @Inject constructor(
         MutableStateFlow<VideoUiState>(VideoUiState.Default) /// mutable Livedata
     val uiState: StateFlow<VideoUiState> get() = _uiState /// Live Data
 
-    val testVideo = listOf(1,2,3,4,5,6,7,8,9,10)
+    val testVideo = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
     init {
         videoPlayer.repeatMode = REPEAT_MODE_ALL
         videoPlayer.playWhenReady = true
         videoPlayer.prepare()
         viewModelScope.launch {
-            val response = videoRepository.getListVideo()
-            val listVideo = response.videos
-            val video = listVideo[testVideo.random()]
-            val urlVideo = video.video_files.first().link;
+            try {
+                val response = videoRepository.getListVideo()
+                if (response != null) {
+                    val listVideo = response.videos
+                    val video = listVideo[testVideo.random()]
+                    val urlVideo = video.video_files.first().link;
 
-            val mediaItem = MediaItem.fromUri(urlVideo)
+                    val mediaItem = MediaItem.fromUri(urlVideo)
 
-            videoPlayer.setMediaItem(mediaItem)
-            videoPlayer.play()
+                    videoPlayer.setMediaItem(mediaItem)
+                    videoPlayer.play()
+                }
+            } catch (e: Exception) {
+                Log.e("VIDEO_VM", "Disconnected!!!!!")
+            }
         }
     }
 

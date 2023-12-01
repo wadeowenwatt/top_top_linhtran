@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class VideoRepository @Inject constructor(private var videoApi: VideoApi) {
     private val accessToken: String = "eVRzwlgwDZigZJWfY0JQCw9vYFDxFwxZbCAlrBRBjKXfTtMVlNZTOmXs";
-    suspend fun getListVideo(): ApiListVideoResponse {
+    suspend fun getListVideo(): ApiListVideoResponse? {
         return videoApi.getListVideo(accessToken)
     }
 }
