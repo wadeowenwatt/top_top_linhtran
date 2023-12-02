@@ -15,10 +15,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import wade.owen.toptop.data.repositories.VideoRepository
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class VideoViewModel @OptIn(UnstableApi::class) @Inject constructor(
     val videoPlayer: ExoPlayer,
+    val videoUrl: String,
     private val videoRepository: VideoRepository,
 ) : ViewModel() {
     private var _uiState =
@@ -36,8 +38,8 @@ class VideoViewModel @OptIn(UnstableApi::class) @Inject constructor(
                 val response = videoRepository.getListVideo()
                 if (response != null) {
                     val listVideo = response.videos
-                    val video = listVideo[testVideo.random()]
-                    val urlVideo = video.video_files.first().link;
+                    val video = listVideo[Random.nextInt(0, 14)]
+                    val urlVideo = video.video_files.first().link  // files[2] for 1280 x 960
 
                     val mediaItem = MediaItem.fromUri(urlVideo)
 

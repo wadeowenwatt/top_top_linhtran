@@ -1,6 +1,5 @@
-package wade.owen.toptop.compose
+package wade.owen.toptop.screen.toptop.video
 
-import android.graphics.drawable.Drawable
 import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,7 +8,6 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import wade.owen.toptop.R
 
 @OptIn(UnstableApi::class)
 @Composable
