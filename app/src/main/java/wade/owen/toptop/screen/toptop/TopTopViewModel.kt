@@ -1,9 +1,8 @@
 package wade.owen.toptop.screen.toptop
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.Composable
+import android.annotation.SuppressLint
+import android.app.Application
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import wade.owen.toptop.config.Resource
 import wade.owen.toptop.data.model.ApiListVideoResponse
 import wade.owen.toptop.domain.use_case.TopTopUseCase
@@ -40,7 +40,15 @@ class TopTopViewModel @Inject constructor(
 
                 is Resource.Success -> {
                     _uiState.value = TopTopUiState(listVideoData = resource.data)
-                    prepareVideo()
+//                    updateLinkVideo(0)
+//                    val pageCounting = _uiState.value.pageCounting
+//                    val urlVideo =
+//                        _uiState.value.listVideoData?.videos?.get(pageCounting)?.video_files?.first()?.link
+//                    _uiState.update { currentState ->
+//                        currentState.copy(
+//                            currentVideoUrl = urlVideo ?: ""
+//                        )
+//                    }
                 }
 
                 is Resource.Error -> {
@@ -50,12 +58,7 @@ class TopTopViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun prepareVideo() {
-        videoPlayer.repeatMode = Player.REPEAT_MODE_ALL
-        videoPlayer.playWhenReady = true
-        videoPlayer.prepare()
-        playVideo()
-    }
+
 
     private fun playVideo() {
         val pageCounting = _uiState.value.pageCounting
@@ -67,15 +70,40 @@ class TopTopViewModel @Inject constructor(
         videoPlayer.play()
     }
 
-    fun changeVideo(index: Int) {
-        _uiState.value.pageCounting = index
-        playVideo()
+    fun updateLinkVideo(index: Int) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                isLoading = true
+            )
+        }
+        val urlVideo =
+            _uiState.value.listVideoData?.videos?.get(index)?.video_files?.first()?.link
+        _uiState.update { currentState ->
+            currentState.copy(
+                pageCounting = index,
+                currentVideoUrl = urlVideo ?: ""
+            )
+        }
+        _uiState.update { currentState ->
+            currentState.copy(
+                isLoading = false
+            )
+        }
+    }
+
+    fun loading() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                isLoading = true
+            )
+        }
     }
 }
 
 data class TopTopUiState(
-    val isLoading: Boolean = false,
+    var isLoading: Boolean = false,
     var listVideoData: ApiListVideoResponse? = null,
     var pageCounting: Int = 0,
-    val error: String = ""
+    var currentVideoUrl: String = "",
+    var error: String = ""
 )

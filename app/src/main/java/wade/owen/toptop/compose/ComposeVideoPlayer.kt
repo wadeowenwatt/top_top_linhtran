@@ -1,4 +1,4 @@
-package wade.owen.toptop.screen.toptop.video
+package wade.owen.toptop.compose
 
 import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
