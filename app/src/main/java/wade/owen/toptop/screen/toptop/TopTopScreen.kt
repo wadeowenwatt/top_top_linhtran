@@ -1,15 +1,14 @@
 package wade.owen.toptop.screen.toptop
 
 import android.util.Log
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.PagerDefaults
-import androidx.compose.foundation.pager.PagerSnapDistance
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,58 +26,53 @@ import wade.owen.toptop.screen.toptop.video.VideoViewModel
 @Composable
 fun TopTopScreen() {
 
-//    val SCREEN_KEY = "TOP_TOP_SCREEN"
-//    val topTopViewModel: TopTopViewModel = hiltViewModel(key = SCREEN_KEY)
-//    val uiState = topTopViewModel.uiState.collectAsState()
+    val topTopViewModel: TopTopViewModel = hiltViewModel<TopTopViewModel>(key = "TopTopVM")
+    val uiState = topTopViewModel.uiState.collectAsState()
 
-    val pagerController: PagerState = rememberPagerState(
-        pageCount = {
-            15
-        })
+    val pagerState = topTopViewModel.pagerState
 
     val fling = PagerDefaults.flingBehavior(
-        state = pagerController,
-        pagerSnapDistance = PagerSnapDistance.atMost(10)
+        state = pagerState,
+//        pagerSnapDistance = PagerSnapDistance.atMost(10),
+        lowVelocityAnimationSpec = tween(
+            easing = LinearEasing, durationMillis = 300
+        )
     )
 
-//    LaunchedEffect(pagerController) {
-//        snapshotFlow {
-//            pagerController.settledPage
-//        }.collect { settledPage ->
-//            Log.d("TTScreen", "settled " + settledPage.toString())
-//            topTopViewModel.updateLinkVideo(settledPage)
-//        }
-//    }
+    LaunchedEffect(pagerState) {
+        snapshotFlow {
+            pagerState.settledPage
+        }.collect { settledPage ->
+            Log.d("TTScreen", "settled $settledPage")
+            if (topTopViewModel.currentPage != settledPage) {
+                topTopViewModel.swipeChangeVideo(settledPage)
+            }
+        }
+    }
 
-//    LaunchedEffect(pagerController) {
-//        snapshotFlow { pagerController.currentPage }.collect { currentPage ->
-//            Log.d("TTScreen", "current " + currentPage.toString())
-//            topTopViewModel.loading()
-//        }
-//    }
-
-    VerticalPager(state = pagerController, flingBehavior = fling) {
-        val videoViewModel: VideoViewModel = hiltViewModel(key = it.toString())
+    VerticalPager(
+        state = pagerState,
+        flingBehavior = fling,
+        beyondBoundsPageCount = 0,
+    ) { page ->
+        val videoViewModel = hiltViewModel<VideoViewModel>(key = page.toString())
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color.Black),
             contentAlignment = Alignment.Center,
         ) {
-            VideoDetailScreen(videoId = it, videoViewModel = videoViewModel)
+            VideoDetailScreen(
+                pagerState = pagerState,
+                uiState.value.currentVideoUrl,
+                videoViewModel
+            )
         }
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .background(color = Color.Black),
-//            contentAlignment = Alignment.Center,
-//        ) {
-//            Log.d("TTScreen", uiState.value.isLoading.toString())
-//            ComposeVideoPlayer(
-//                modifier = Modifier,
-//                player = videoViewModel.videoPlayer,
-//                urlVideo = uiState.value.currentVideoUrl
-//            )
+
+//        DisposableEffect(page) {
+//            onDispose {
+////                Log.d("linhtn1","Page $it is no longer displayed")
+//            }
 //        }
     }
 }

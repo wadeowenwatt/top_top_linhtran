@@ -16,7 +16,7 @@ fun ComposeVideoPlayer(modifier: Modifier, player: Player) {
         factory = { context ->
             PlayerView(context).also {
                 it.player = player
-                it.useController = true
+                it.useController = false
                 it.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
             }
         },

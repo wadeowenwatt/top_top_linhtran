@@ -2,6 +2,7 @@ package wade.owen.toptop.screen.toptop.video
 
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -13,15 +14,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import wade.owen.toptop.config.Resource
 import wade.owen.toptop.data.model.ApiListVideoResponse
 import wade.owen.toptop.domain.use_case.TopTopUseCase
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 @HiltViewModel
 class VideoViewModel @OptIn(UnstableApi::class) @Inject constructor(
     val videoPlayer: ExoPlayer,
-    private val topTopUseCase: TopTopUseCase,
+//    private val topTopUseCase: TopTopUseCase,
 ) : ViewModel() {
 
     private var _uiState = MutableStateFlow<VideoUiState>(VideoUiState.Default) /// mutable Livedata
@@ -29,33 +32,6 @@ class VideoViewModel @OptIn(UnstableApi::class) @Inject constructor(
 
     init {
         prepareVideoPlayer()
-        getListVideo()
-    }
-
-    private fun getListVideo() {
-        topTopUseCase().onEach { resource ->
-            when (resource) {
-                is Resource.Loading -> {
-                    _uiState.value = VideoUiState.Loading
-                }
-
-                is Resource.Success -> {
-                    Log.d("linhtn1", "call API")
-                    val urlVideo = resource.data?.videos?.first()?.video_files?.first()?.link
-                    _uiState.value = VideoUiState.Success(
-                        listVideoData = resource.data,
-                        urlVideo = urlVideo ?: "",
-                    )
-                    playVideo(urlVideo)
-                }
-
-                is Resource.Error -> {
-                    _uiState.value = VideoUiState.Failure(
-                        message = resource.message ?: ""
-                    )
-                }
-            }
-        }.launchIn(viewModelScope)
     }
 
     private fun playVideo(urlVideo: String?) {
@@ -65,16 +41,18 @@ class VideoViewModel @OptIn(UnstableApi::class) @Inject constructor(
     }
 
     private fun prepareVideoPlayer() {
+        setLoadingState()
+        if (videoPlayer.isLoading) {
+            setLoadingState()
+        }
         videoPlayer.repeatMode = REPEAT_MODE_ALL
         videoPlayer.playWhenReady = true
         videoPlayer.prepare()
     }
 
     private fun toggleVideo() {
-        if (!videoPlayer.isLoading) {
-            if (videoPlayer.isPlaying)
-                videoPlayer.pause() else videoPlayer.play()
-        }
+        if (videoPlayer.isPlaying)
+            videoPlayer.pause() else videoPlayer.play()
     }
 
     fun handleAction(action: VideoAction) {
@@ -85,23 +63,37 @@ class VideoViewModel @OptIn(UnstableApi::class) @Inject constructor(
         }
     }
 
+    fun updateState(urlVideo: String) {
+        _uiState.update {
+            VideoUiState.Success(
+                urlVideo = urlVideo
+            )
+        }
+        playVideo((_uiState.value as VideoUiState.Success).urlVideo)
+    }
 
+    private fun setLoadingState() {
+        _uiState.update {
+            VideoUiState.Loading
+        }
+    }
 
+    override fun onCleared() {
+        super.onCleared()
+        videoPlayer.release()
+    }
 }
 
 sealed class VideoUiState {
     object Default : VideoUiState()
     object Loading : VideoUiState()
     data class Success(
-        var listVideoData: ApiListVideoResponse? = null,
         var urlVideo: String = "",
     ) : VideoUiState()
 
     data class Failure(
         var message: String = "",
     ) : VideoUiState()
-
-
 }
 
 sealed class VideoAction {

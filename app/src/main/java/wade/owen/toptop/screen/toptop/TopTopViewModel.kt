@@ -1,13 +1,12 @@
 package wade.owen.toptop.screen.toptop
 
-import android.annotation.SuppressLint
-import android.app.Application
-import android.content.Context
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,12 +19,21 @@ import wade.owen.toptop.domain.use_case.TopTopUseCase
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(ExperimentalFoundationApi::class)
 class TopTopViewModel @Inject constructor(
-    val videoPlayer: ExoPlayer,
+//    val videoPlayer: ExoPlayer,
     private val topTopUseCase: TopTopUseCase,
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(TopTopUiState())
     val uiState: StateFlow<TopTopUiState> get() = _uiState
+    var currentPage = 0
+    val pagerState: PagerState
+        @Composable
+        get() = rememberPagerState(
+            initialPage = 0,
+            pageCount = {
+                15
+            })
 
     init {
         getListVideo()
@@ -40,15 +48,7 @@ class TopTopViewModel @Inject constructor(
 
                 is Resource.Success -> {
                     _uiState.value = TopTopUiState(listVideoData = resource.data)
-//                    updateLinkVideo(0)
-//                    val pageCounting = _uiState.value.pageCounting
-//                    val urlVideo =
-//                        _uiState.value.listVideoData?.videos?.get(pageCounting)?.video_files?.first()?.link
-//                    _uiState.update { currentState ->
-//                        currentState.copy(
-//                            currentVideoUrl = urlVideo ?: ""
-//                        )
-//                    }
+                    getVideoWithPagerNumber(0)
                 }
 
                 is Resource.Error -> {
@@ -58,47 +58,34 @@ class TopTopViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-
-
-    private fun playVideo() {
-        val pageCounting = _uiState.value.pageCounting
-        val urlVideo =
-            _uiState.value.listVideoData?.videos?.get(pageCounting)?.video_files?.first()?.link
-        val mediaItem = MediaItem.fromUri(urlVideo ?: "")
-        videoPlayer.setMediaItem(mediaItem)
-        videoPlayer.prepare()
-        videoPlayer.play()
-    }
-
-    fun updateLinkVideo(index: Int) {
+    fun setLoadingState() {
         _uiState.update { currentState ->
             currentState.copy(
                 isLoading = true
             )
         }
-        val urlVideo =
-            _uiState.value.listVideoData?.videos?.get(index)?.video_files?.first()?.link
+    }
+
+    fun updateCurrentVideoUrl(urlVideo: String) {
         _uiState.update { currentState ->
             currentState.copy(
-                pageCounting = index,
-                currentVideoUrl = urlVideo ?: ""
-            )
-        }
-        _uiState.update { currentState ->
-            currentState.copy(
-                isLoading = false
+                currentVideoUrl = urlVideo,
             )
         }
     }
 
-    fun loading() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isLoading = true
-            )
-        }
+    fun getVideoWithPagerNumber(pager: Int) {
+        val videoFile = _uiState.value.listVideoData?.videos?.get(pager)?.video_files
+        val videoUrl = videoFile?.first()?.link
+        updateCurrentVideoUrl(videoUrl ?: "")
+    }
+
+    fun swipeChangeVideo(settledPage: Int) {
+        currentPage = settledPage
+        getVideoWithPagerNumber(settledPage)
     }
 }
+
 
 data class TopTopUiState(
     var isLoading: Boolean = false,
