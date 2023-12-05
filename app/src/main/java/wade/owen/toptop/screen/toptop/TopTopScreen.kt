@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,10 +34,10 @@ fun TopTopScreen() {
 
     val fling = PagerDefaults.flingBehavior(
         state = pagerState,
-//        pagerSnapDistance = PagerSnapDistance.atMost(10),
-        lowVelocityAnimationSpec = tween(
-            easing = LinearEasing, durationMillis = 300
-        )
+        pagerSnapDistance = PagerSnapDistance.atMost(10),
+//        lowVelocityAnimationSpec = tween(
+//            easing = LinearEasing, durationMillis = 300
+//        )
     )
 
     LaunchedEffect(pagerState) {
@@ -55,7 +56,7 @@ fun TopTopScreen() {
         flingBehavior = fling,
         beyondBoundsPageCount = 0,
     ) { page ->
-        val videoViewModel = hiltViewModel<VideoViewModel>(key = page.toString())
+//        val videoViewModel = hiltViewModel<VideoViewModel>(key = page.toString())
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -64,8 +65,9 @@ fun TopTopScreen() {
         ) {
             VideoDetailScreen(
                 pagerState = pagerState,
-                uiState.value.currentVideoUrl,
-                videoViewModel
+                uiState.value,
+//                videoViewModel,
+                topTopViewModel.videoPlayer
             )
         }
 

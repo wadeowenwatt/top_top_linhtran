@@ -1,12 +1,15 @@
 package wade.owen.toptop.screen.toptop
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player.REPEAT_MODE_ALL
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.util.EventLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,10 +21,11 @@ import wade.owen.toptop.data.model.ApiListVideoResponse
 import wade.owen.toptop.domain.use_case.TopTopUseCase
 import javax.inject.Inject
 
+
 @HiltViewModel
 @OptIn(ExperimentalFoundationApi::class)
 class TopTopViewModel @Inject constructor(
-//    val videoPlayer: ExoPlayer,
+    val videoPlayer: ExoPlayer,
     private val topTopUseCase: TopTopUseCase,
 ) : ViewModel() {
     private var _uiState = MutableStateFlow(TopTopUiState())
@@ -36,6 +40,7 @@ class TopTopViewModel @Inject constructor(
             })
 
     init {
+        prepareVideoPlayer()
         getListVideo()
     }
 
@@ -72,6 +77,7 @@ class TopTopViewModel @Inject constructor(
                 currentVideoUrl = urlVideo,
             )
         }
+        playVideo()
     }
 
     fun getVideoWithPagerNumber(pager: Int) {
@@ -81,8 +87,32 @@ class TopTopViewModel @Inject constructor(
     }
 
     fun swipeChangeVideo(settledPage: Int) {
+        setLoadingState()
         currentPage = settledPage
         getVideoWithPagerNumber(settledPage)
+    }
+
+    private fun prepareVideoPlayer() {
+        videoPlayer.addAnalyticsListener(EventLogger())
+        videoPlayer.repeatMode = REPEAT_MODE_ALL
+        videoPlayer.playWhenReady = true
+        videoPlayer.prepare()
+    }
+
+    private fun playVideo() {
+        val mediaItem = MediaItem.fromUri(_uiState.value.currentVideoUrl)
+        videoPlayer.setMediaItem(mediaItem, true)
+        videoPlayer.play()
+        _uiState.update { currentState ->
+            currentState.copy(
+                isLoading = false,
+            )
+        }
+    }
+    private fun playVideo(url: String) {
+        val mediaItem = MediaItem.fromUri(url)
+        videoPlayer.setMediaItem(mediaItem)
+        videoPlayer.play()
     }
 }
 

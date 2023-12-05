@@ -8,51 +8,63 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.Player
 import wade.owen.toptop.compose.ComposeVideoPlayer
+import wade.owen.toptop.screen.toptop.TopTopUiState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun VideoDetailScreen(pagerState: PagerState, urlVideo: String, videoViewModel: VideoViewModel) {
+fun VideoDetailScreen(
+    pagerState: PagerState,
+    uiState: TopTopUiState,
+//    videoViewModel: VideoViewModel,
+    player: Player,
+) {
 
-    val uiState = videoViewModel.uiState.collectAsState()
-    videoViewModel.updateState(urlVideo = urlVideo)
+//    val uiState = videoViewModel.uiState.collectAsState()
+//    videoViewModel.updateState(urlVideo = urlVideo)
 
-    Log.d("linhtn1","Page ${pagerState.currentPage}")
+    Log.d("linhtn1", "Page ${pagerState.currentPage}")
     VideoDetailScreen(
-        uiState = uiState.value,
-        player = videoViewModel.videoPlayer,
+        uiState = uiState,
+        player = player,
     ) { videoAction ->
-        videoViewModel.handleAction(videoAction)
+//        videoViewModel.handleAction(videoAction)
     }
 }
 
 @Composable
 fun VideoDetailScreen(
-    uiState: VideoUiState,
+    uiState: TopTopUiState,
     player: Player,
     handleAction: (VideoAction) -> Unit,
 ) {
-    when (uiState) {
-        is VideoUiState.Loading -> {
-            Log.d("linhtn1", "Loading")
-            Text(text = "Loading...", color = Color.White)
-        }
-
-        is VideoUiState.Success -> {
-            Log.d("linhtn1", "test first url " + uiState.urlVideo)
-            VideoDetailScreen(player = player, handleAction = handleAction)
-        }
-
-        else -> {}
+    if (uiState.isLoading) {
+        Log.d("linhtn1", "Loading")
+        Text(text = "Loading...", color = Color.White)
+    } else {
+        Log.d("linhtn1", "test first url " + uiState.currentVideoUrl)
+        VideoDetailScreen(player = player, handleAction = handleAction)
     }
+
+//    when (uiState) {
+//        is VideoUiState.Loading -> {
+//            Log.d("linhtn1", "Loading")
+//            Text(text = "Loading...", color = Color.White)
+//        }
+//
+//        is VideoUiState.Success -> {
+//            Log.d("linhtn1", "test first url " + uiState.urlVideo)
+//            VideoDetailScreen(player = player, handleAction = handleAction)
+//        }
+//
+//        else -> {}
+//    }
 }
 
 @Composable
